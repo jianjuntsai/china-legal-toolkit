@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [2.1.0] - 2026-05-06
 
 ### Added
 - `search_fatiao_semantic(query, ...)` — 法条语义检索（向量检索），调用元典 `POST /open/law_vector_search`
@@ -13,8 +13,7 @@
 ## [2.0.0] - 2026-04-13
 
 ### Changed
-- 升级为八阶段工作流（新增二手文献分析阶段）
-- 新增语义检索补充路径（第五阶段 5.2.1）
+- 升级为八阶段工作流（新增第四阶段：二手文献分析）
 - 备忘录增加"九、关键资料溯引图"（mermaid）
 
 ### Added
