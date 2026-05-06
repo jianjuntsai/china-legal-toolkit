@@ -66,14 +66,21 @@ print(json.dumps(result, ensure_ascii=False, indent=2))
 - `get_fagui_detail(id, fgmc, refer_date)` — 法规全文
 - `search_fatiao(keyword, fgmc, sxx, xljb_1, top_k)` — 法条关键词检索（含 llm_content）
 - `get_fatiao_detail(id, fgmc, ftnum, refer_date)` — 法条详情原文
-- `search_qwal(qw, ay, ajlb, top_k)` — 权威案例检索（指导性/典型案例）
-- `search_ptal(qw, fxgc, ay, ajlb, yyft, top_k)` — 普通案例检索（裁判文书）
+- `search_qwal(qw, ay, ajlb, top_k)` — 权威案例关键词检索（指导性/典型案例）
+- `search_ptal(qw, fxgc, ay, ajlb, yyft, top_k)` — 普通案例关键词检索（裁判文书）
 - `get_case_detail(type, id, ah)` — 案例详情全文（type="ptal"或"qwal"）
+- `search_fatiao_semantic(query, sxx, effect1, return_num)` — 法条**语义检索**（向量）
+- `search_case_semantic(query, wenshu_type, dianxing, return_num)` — 案例**语义检索**（向量）
 
 重要返回说明：
 - `search_fatiao` 的 `llm_content` 格式：`"- 《{fgmc}》{ft_num}##{content}"`
 - `search_qwal` / `search_ptal` 返回 `{"total": int, "lst": [...]}`，取 `lst` 时先判断结果非空
 - `sxx` 字段表示时效性：现行有效 / 失效 / 已被修改 / 部分失效 / 尚未生效
+- `search_fatiao_semantic` / `search_case_semantic` 返回 list，每条含 `score`（相似度评分）
+
+**关键词检索 vs 语义检索使用原则**：
+- **用关键词检索**：已知具体法规名称/法条号/案号，或二手文献已提取出精确术语（如"背对背付款""短线交易"）
+- **用语义检索**：用户问题模糊、用口语描述、领域术语不确定，或需要发现跨法规的潜在相关法条；寻找事实相似判例时语义检索召回更全
 
 ### 二手文献（Secondary Sources）— Tavily 检索
 
@@ -184,6 +191,19 @@ search_ptal(qw="关键词", ajlb="民事案件", top_k=10)
 ```
 
 注意：调用 `search_ptal` / `search_qwal` 后先检查返回值是否为 None 再取 `lst`。
+
+**5.2.1 语义检索补充（按需使用）**
+
+以下两种情况追加语义检索，作为关键词检索的补充：
+1. 关键词检索结果不足（召回 < 3 条相关结果）
+2. 用户问题较为模糊，难以提炼精确关键词
+
+```python
+search_fatiao_semantic(query="用户的自然语言问题或争议描述", sxx=["现行有效"], return_num=15)
+search_case_semantic(query="用户的自然语言问题或争议描述", wenshu_type="民事案件", return_num=10)
+```
+
+语义检索返回的每条结果含 `score`（相似度评分），优先使用 score 较高的结果；仍须通过 `get_fatiao_detail` 或 `get_case_detail` 获取完整原文后再引用。
 
 **5.3 按需获取全文**
 

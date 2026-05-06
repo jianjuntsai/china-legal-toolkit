@@ -283,7 +283,99 @@ def get_case_detail(type, id=None, ah=None):
 
 
 # ──────────────────────────────────────────────
-# 三、企业信息类
+# 三、语义检索类
+# ──────────────────────────────────────────────
+
+def search_fatiao_semantic(query, rewrite_flag=True, sxx=None, effect1=None,
+                           law_start=None, law_end=None, return_num=20):
+    """
+    法律法规语义检索（向量检索）
+    - query: 自然语言查询文本（必填），如"合同解除后的违约金如何认定"
+    - rewrite_flag: 是否对查询做改写，默认 True
+    - sxx: 时效性过滤列表，如 ["现行有效"]
+    - effect1: 一级效力级别列表，如 ["法律", "司法解释"]
+    - law_start/law_end: 法条生效日期范围，格式 yyyy-MM-dd
+    - return_num: 返回法条数量，默认 20，最大不超过检索回的总数
+    返回: list[dict] 法条列表，每条含 ftid/fgid/fgtitle/num/content/sxx/effect1/score 等
+    适用场景：用户问题模糊、术语不确定、或需要发现潜在相关法条时使用
+    """
+    payload = {"query": query, "rewrite_flag": rewrite_flag, "return_num": return_num}
+    fatiao_filter = {}
+    if sxx:
+        fatiao_filter["sxx"] = sxx if isinstance(sxx, list) else [sxx]
+    if effect1:
+        fatiao_filter["effect1"] = effect1 if isinstance(effect1, list) else [effect1]
+    if law_start:
+        fatiao_filter["law_start"] = law_start
+    if law_end:
+        fatiao_filter["law_end"] = law_end
+    if fatiao_filter:
+        payload["fatiao_filter"] = fatiao_filter
+
+    resp = requests.post(
+        "https://open.chineselaw.com/open/law_vector_search",
+        headers=HEADERS_JSON,
+        json=payload,
+    )
+    result = resp.json()
+    if result.get("code") in (200, 201):
+        return result.get("extra", {}).get("fatiao", [])
+    else:
+        print(f"[错误] law_vector_search: {result.get('msg')}")
+        return None
+
+
+def search_case_semantic(query, rewrite_flag=True, wenshu_type=None, wszl=None,
+                         ja_start=None, ja_end=None, dianxing=False,
+                         fayuan=None, cj=None, xzqh_p=None, return_num=20):
+    """
+    案例语义检索（向量检索）
+    - query: 自然语言查询文本（必填），如"股东减资退出后债权人追偿"
+    - rewrite_flag: 是否对查询做改写，默认 True
+    - wenshu_type: 案件类别，如"民事案件"/"刑事案件"/"行政案件"
+    - wszl: 文书种类编码列表，如 ["1"]（判决书）
+    - ja_start/ja_end: 结案日期范围，格式 yyyy-MM-dd
+    - dianxing: False（默认，普通+权威）或 True（仅权威案例）
+    - fayuan: 法院名称列表
+    - cj: 法院层级，如"最高"/"高级"/"中级"/"基层"
+    - xzqh_p: 省级行政区，如"北京"
+    - return_num: 返回案例数量，默认 20
+    返回: list[dict] 案例列表，每条含 scid/title/ah/ay/ajlb/content/score 等
+    适用场景：寻找事实相似判例、案例类比推理、或关键词检索召回不足时使用
+    """
+    payload = {"query": query, "rewrite_flag": rewrite_flag, "return_num": return_num}
+    wenshu_filter = {"dianxing": dianxing}
+    if wenshu_type:
+        wenshu_filter["wenshu_type"] = wenshu_type
+    if wszl:
+        wenshu_filter["wszl"] = wszl if isinstance(wszl, list) else [wszl]
+    if ja_start:
+        wenshu_filter["ja_start"] = ja_start
+    if ja_end:
+        wenshu_filter["ja_end"] = ja_end
+    if fayuan:
+        wenshu_filter["fayuan"] = fayuan if isinstance(fayuan, list) else [fayuan]
+    if cj:
+        wenshu_filter["cj"] = cj
+    if xzqh_p:
+        wenshu_filter["xzqh_p"] = xzqh_p
+    payload["wenshu_filter"] = wenshu_filter
+
+    resp = requests.post(
+        "https://open.chineselaw.com/open/case_vector_search",
+        headers=HEADERS_JSON,
+        json=payload,
+    )
+    result = resp.json()
+    if result.get("code") in (200, 201):
+        return result.get("extra", {}).get("wenshu", [])
+    else:
+        print(f"[错误] case_vector_search: {result.get('msg')}")
+        return None
+
+
+# ──────────────────────────────────────────────
+# 四、企业信息类
 # ──────────────────────────────────────────────
 
 def search_company_by_name(name, num=2):
