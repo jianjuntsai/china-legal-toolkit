@@ -104,6 +104,7 @@ pip install requests tavily-python
 ```
 PRC-Legal-Research/
 ├── README.md                 # 本文件
+├── CHANGELOG.md              # 版本更新日志
 ├── evals/                    # Skill 评测数据与方案
 ├── examples/                 # 法律研究备忘录示例
 └── prc-legal-research/       # Skill 主目录（安装到 ~/.claude/skills/）
