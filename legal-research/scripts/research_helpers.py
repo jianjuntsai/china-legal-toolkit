@@ -6,12 +6,12 @@
 import sys
 import os
 
-_base = os.path.dirname(__file__)
+SKILLS_DIR = os.path.expanduser("~/.claude/skills")
 
-sys.path.insert(0, os.path.join(_base, "../../law-search/scripts"))
-sys.path.insert(0, os.path.join(_base, "../../case-search/scripts"))
-sys.path.insert(0, os.path.join(_base, "../../company-info/scripts"))
-sys.path.insert(0, os.path.join(_base, "../../shared"))
+sys.path.insert(0, os.path.join(SKILLS_DIR, "law-search/scripts"))
+sys.path.insert(0, os.path.join(SKILLS_DIR, "case-search/scripts"))
+sys.path.insert(0, os.path.join(SKILLS_DIR, "company-info/scripts"))
+sys.path.insert(0, os.path.join(SKILLS_DIR, "shared"))
 
 from law_api import (
     search_fagui,

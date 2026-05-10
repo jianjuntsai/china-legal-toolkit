@@ -9,7 +9,8 @@ import requests
 import sys
 import os
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../../shared"))
+SKILLS_DIR = os.path.expanduser("~/.claude/skills")
+sys.path.insert(0, os.path.join(SKILLS_DIR, "shared"))
 from config import API_KEY
 
 BASE_URL = "https://apiplatform.legalmind.cn/open"
