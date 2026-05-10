@@ -1,5 +1,21 @@
 # Changelog
 
+## [3.0.0] - 2026-05-10
+
+### Changed
+- 项目重命名为 `china-legal-toolkit`，由单一 Skill 扩展为四模块工具包
+- 重构目录结构：`prc-legal-research/` 拆分为 `law-search/`、`case-search/`、`company-info/`、`legal-research/` 四个独立 Skill 目录
+- 共享代码迁移至 `shared/`（config、tavily_search）
+- 原 `yuandian_api.py` 拆分为三个专项模块：`law_api.py`、`case_api.py`、`company_api.py`
+
+### Added
+- **新 Skill：法条检索**（`law-search/`）— 支持关键词/精确/语义三种检索模式
+- **新 Skill：裁判文书检索**（`case-search/`）— 支持主题/案号/权威案例/语义四种检索模式
+- **新 Skill：企业信息查询**（`company-info/`）— 支持 21 个接口，含工商/风险/诉讼/股权/知识产权
+- `company_api.py` 新增 19 个企业信息接口（聚合总览、涉诉、信用风险、股权、知识产权等）
+
+---
+
 ## [2.1.0] - 2026-05-06
 
 ### Added
